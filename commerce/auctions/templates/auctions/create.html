@@ -1,0 +1,43 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+  <form  class="form-group" action="{% url 'create' %}" method="post">
+    {% csrf_token %}
+        <!-- {% if form %}
+            {{ form.as_p }}
+        {%endif%} -->
+        <div class="form-group">
+            <input value="{{form.title.value}}" autofocus class="form-control" type="text" name="title" placeholder="Title"  required>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control" placeholder="Description" name="description" cols="30" rows="10" required>{{form.description.value}}</textarea>
+        </div>
+        <div class="form-group">
+            <input value="{{form.price.value}}" autofocus class="form-control" type="number" name="price" placeholder="Price" required>
+        </div>
+        <div class="form-group">
+            <input value="{{form.price.url}}" autofocus class="form-control" type="url" name="url" placeholder="Image Url">
+        </div>
+
+        <div class="form-group">
+            <label for="item_category">Categories:</label>
+            <select name="item_category" multiple>
+              {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.category }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+        <input class="btn btn-primary" type="submit" value="Create Listing">
+  </form>
+{% endblock %}

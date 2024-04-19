@@ -2,6 +2,32 @@
 
 {% block body %}
     <h2>Active Listings</h2>
+    {%if not listings%}
+        <p>No listings</p>
+    {%endif %}
+    
+    {% if success_message %}
+        {% for message in success_message %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-    TODO
+        {% for listing in listings %}
+        <div class="container">
+                <h4>Listing: {{listing.title}}</h4>
+                <img src="{{listing.url}}" alt="item-image" width="300px"> <br><br><br>
+                <p>Description: {{ listing.description }}</p>
+                <p>Category:</p>
+                <ul>
+                    {% for category in listing.item_category.all %}
+                    <li>{{ category.category }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <p>Posted by <strong>{{ user.username }}</strong></p>
+            <hr>
+        {%endfor%}
 {% endblock %}

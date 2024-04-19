@@ -1,3 +1,10 @@
 body {
     padding: 10px;
 }
+
+.center-div {
+    display: flex;
+    flex-direction: column;
+    vertical-align: middle;
+    margin: 10px 10px;
+}
