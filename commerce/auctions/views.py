@@ -1,14 +1,15 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
 
-from .models import User, Listing, Category
+from .models import User, Listing, Category, Wishlist
 from .forms import CreateForm
 
 
@@ -29,6 +30,7 @@ def create(request):
         if form.is_valid():
             # Save the form data without committing to the database yet
             listing = form.save(commit=False)
+            listing.user = request.user.username.capitalize()
             # You might want to associate the listing with the current user
             listing.created_by = request.user  # Assuming you have user authentication
             # Now save the listing to the database
@@ -46,6 +48,45 @@ def create(request):
         "form" : form,
         "categories": Category.objects.all()
     })
+
+
+def wishlist(request):
+
+    return render (request, "auctions/wishlist.html")
+
+
+
+def listingPage(request, listing_id):
+    if request.method == "POST":
+        pass
+    else:
+        # Get the listing to display filtering where the title is the 'listing_title'
+        listing_disp = get_object_or_404(Listing, pk=listing_id)
+        
+        # Retrieve success messages
+        success_messages = messages.get_messages(request)
+
+        # Render the template with the listing and success messages
+        return render(request, "auctions/listingpage.html", {
+            "listing": listing_disp,
+            "success_message": success_messages  # Pass success messages to the template
+        })
+
+
+def addwishlist(request, listing_id):
+    if request.method == "POST" and request.user.is_authenticated:
+        listing = Listing.objects.get(pk=listing_id)
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        wishlist.listings.add(listing)
+
+        # Wishlist.user = request.user.username
+        # Wishlist.listings = request.POST["listing_id"]
+        messages.success(request, "Added to wishlist")
+        # url = reverse('listingPage', kwargs={'listing_id': listing_id})
+        return redirect('listingPage', listing_id=listing_id)
+
+
+
 
 def login_view(request):
     if request.method == "POST":

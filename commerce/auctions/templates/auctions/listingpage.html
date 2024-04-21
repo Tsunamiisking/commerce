@@ -1,0 +1,62 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+
+{% if success_message %}
+{% for message in success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+{% endif %}
+
+<div class="container">
+    <h5>Listing: {{listing.title}}</h5>
+    <img src="{{listing.url}}" alt="item-image" width="300px"> <br><br><br>
+    <p><strong>Description:</strong> {{ listing.description }}</p>
+    <p><strong>Category:</strong></p>
+    <ul>
+        {% for category in listing.item_category.all %}
+        <li>{{ category.category }}</li>
+        {% endfor %}
+    </ul>
+    <p>Posted by <strong>{{ listing.user  }}</strong></p>
+    
+        <button id="add-to-wishlist-btn" class="btn btn-primary">Add to Wishlist</button>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('add-to-wishlist-btn').addEventListener('click', function() {
+            var listingId = "{{ listing.id }}";  // Replace with actual listing title
+            var url = "{% url 'addwishlist' listing_id=listing.id %}";
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 'listing_id': listingId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Handle successful response (e.g., display success message)
+                    console.log('Listing added to wishlist successfully');
+                } else {
+                    // Handle error response
+                    console.error('Error adding listing to wishlist');
+                }
+            })
+            .catch(error => {
+                // Handle network error
+                console.error('Network error:', error);
+            });
+        });
+    });
+    </script>
+
+{% endblock %}

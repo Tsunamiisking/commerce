@@ -11,23 +11,20 @@
     {% endfor %}
 {% endif %}
 
-  <form  class="form-group" action="{% url 'create' %}" method="post">
-    {% csrf_token %}
-        <!-- {% if form %}
-            {{ form.as_p }}
-        {%endif%} -->
-        <div class="form-group">
-            <input value="{{form.title.value}}" autofocus class="form-control" type="text" name="title" placeholder="Title"  required>
-        </div>
-        <div class="form-group">
-            <textarea class="form-control" placeholder="Description" name="description" cols="30" rows="10" required>{{form.description.value}}</textarea>
-        </div>
-        <div class="form-group">
-            <input value="{{form.price.value}}" autofocus class="form-control" type="number" name="price" placeholder="Price" required>
-        </div>
-        <div class="form-group">
-            <input value="{{form.price.url}}" autofocus class="form-control" type="url" name="url" placeholder="Image Url">
-        </div>
+    <form class="form-group" action="{% url 'create' %}" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <input autofocus class="form-control" type="text" name="title" placeholder="Title" value="{{ form.instance.title|default_if_none:'' }}" required>
+      </div>
+      <div class="form-group">
+        <textarea class="form-control" placeholder="Description" name="description" cols="30" rows="10" required>{{ form.instance.description|default_if_none:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <input autofocus class="form-control" type="number" name="price" placeholder="Price" value="{{ form.instance.price|default_if_none:'' }}" required>
+      </div>
+      <div class="form-group">
+        <input autofocus class="form-control" type="url" name="url" placeholder="Image Url" value="{{ form.instance.url|default_if_none:'' }}">
+      </div>
 
         <div class="form-group">
             <label for="item_category">Categories:</label>

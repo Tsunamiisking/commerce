@@ -17,17 +17,17 @@
 
         {% for listing in listings %}
         <div class="container">
-                <h4>Listing: {{listing.title}}</h4>
+                <h5><a href="{% url 'listingPage' listing.id %}">Listing: {{listing.title}}</a></h5>
                 <img src="{{listing.url}}" alt="item-image" width="300px"> <br><br><br>
-                <p>Description: {{ listing.description }}</p>
-                <p>Category:</p>
+                <p><strong>Description:</strong> {{ listing.description }}</p>
+                <p><strong>Category:</strong></p>
                 <ul>
                     {% for category in listing.item_category.all %}
                     <li>{{ category.category }}</li>
                     {% endfor %}
                 </ul>
+                <p>Posted by <strong>{{ listing.user }}</strong></p>
             </div>
-            <p>Posted by <strong>{{ user.username }}</strong></p>
             <hr>
         {%endfor%}
 {% endblock %}
