@@ -3,8 +3,8 @@
 {% block body %}
 
 
-{% if success_message %}
-{% for message in success_message %}
+{% if messages %}
+{% for message in messages %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -12,10 +12,11 @@
 {% endfor %}
 {% endif %}
 
-<div class="container">
+<div class="container space">
     <h5>Listing: {{listing.title}}</h5>
     <img src="{{listing.url}}" alt="item-image" width="300px"> <br><br><br>
     <p><strong>Description:</strong> {{ listing.description }}</p>
+    <p><strong>Starting Bid:</strong> ${{ listing.price }}</p>
     <p><strong>Category:</strong></p>
     <ul>
         {% for category in listing.item_category.all %}
@@ -24,15 +25,66 @@
     </ul>
     <p>Posted by <strong>{{ listing.user  }}</strong></p>
     
-        <button id="add-to-wishlist-btn" class="btn btn-primary">Add to Wishlist</button>
+       {% if user.is_authenticated %}
+           <div class="centre">
+            <button id="add-to-watchlist-btn" class="btn btn-primary">{{button}}</button>
+           </div>
+            <br> <br>
+           <form action="{% url 'bid_item' listing.id  %}" method="post">
+                  {% csrf_token %}
+                <div class="input-group has-validation">
+                    <span class="input-group-text">$</span>
+                    <div class="form-floating">
+                      <input type="number" class="form-control" id="floatingInputGroup2" name="bid_amount" placeholder="Place a bid" required>
+                      <label for="floatingInputGroup2">Please place a bid</label>
+                    </div>
+                  </div> <br>
+
+                  <button class="btn btn-primary" type="submit">Place Bid</button>
+           </form>
+       {% endif %}
+</div>
+<div>
+    <h4>Comments</h4>
+    <ul>
+        {%for comment in comments %}
+           <li><strong>{{ comment.user }} :</strong> {{ comment.text }}</li>
+        {%endfor%}
+    </ul>
+</div>
+ 
+<div>
+    {% if request.user.username == listing.user %}
+    {% if not listing.is_closed %}
+        <form action="{% url 'close_listing' listing.id %}" method="post">
+            {% csrf_token %}
+            <input class="btn btn-primary" type="submit" value="Close Listing">
+        </form>
+    {% else %}
+        <p>This listing is already closed.</p>
+    {% endif %}
 </div>
 
+    <br>
 
+    {% if user.is_authenticated %}
+        <form action="{%url 'addcomment' listing.id %}" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="comment-text" class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Drop Comment"></textarea>
+              </div>
+              <button class="btn btn-primary" type="submit">Comment</button>
+        </form>
+    {%endif%}
+    <br>
+{% endif %}
+
+</button>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('add-to-wishlist-btn').addEventListener('click', function() {
+        document.getElementById('add-to-watchlist-btn').addEventListener('click', function() {
             var listingId = "{{ listing.id }}";  // Replace with actual listing title
-            var url = "{% url 'addwishlist' listing_id=listing.id %}";
+            var url = "{% url 'add_or_remove_watchlist' listing_id=listing.id %}";
     
             fetch(url, {
                 method: 'POST',
@@ -45,10 +97,10 @@
             .then(response => {
                 if (response.ok) {
                     // Handle successful response (e.g., display success message)
-                    console.log('Listing added to wishlist successfully');
+                    console.log('Listing added to watchlist successfully');
                 } else {
                     // Handle error response
-                    console.error('Error adding listing to wishlist');
+                    console.error('Error adding listing to watchlist');
                 }
             })
             .catch(error => {

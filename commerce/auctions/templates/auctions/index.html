@@ -16,10 +16,12 @@
     {% endif %}
 
         {% for listing in listings %}
+        {%if not listing.is_closed %}
         <div class="container">
                 <h5><a href="{% url 'listingPage' listing.id %}">Listing: {{listing.title}}</a></h5>
                 <img src="{{listing.url}}" alt="item-image" width="300px"> <br><br><br>
                 <p><strong>Description:</strong> {{ listing.description }}</p>
+                <p><strong>Starting Bid:</strong> ${{ listing.price }}</p>
                 <p><strong>Category:</strong></p>
                 <ul>
                     {% for category in listing.item_category.all %}
@@ -29,5 +31,6 @@
                 <p>Posted by <strong>{{ listing.user }}</strong></p>
             </div>
             <hr>
+            {%endif%}
         {%endfor%}
 {% endblock %}

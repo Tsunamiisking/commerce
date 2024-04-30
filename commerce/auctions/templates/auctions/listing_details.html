@@ -1,0 +1,9 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+    <div class="container">
+        <h1>Highest bidder: {{highest_bidder}}</h1>
+        <a href="{% url 'index'%}">See Other listing</a>
+
+    </div>
+{% endblock %}

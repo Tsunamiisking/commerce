@@ -1,6 +1,10 @@
 body {
     padding: 10px;
 }
+.space{
+    margin: 20px 0px;
+
+}
 
 .center-div {
     display: flex;
