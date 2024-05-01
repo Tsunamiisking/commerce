@@ -32,7 +32,7 @@
             <button class="btn btn-primary">{{button}}</button>
             </form>
            </div>
-            <br> <br>
+<br> <br>
            <form action="{% url 'bid_item' listing.id  %}" method="post">
                   {% csrf_token %}
                 <div class="input-group has-validation">
@@ -45,7 +45,7 @@
 
                   <button class="btn btn-primary" type="submit">Place Bid</button>
            </form>
-
+<br>
             <form action="{%url 'addcomment' listing.id %}" method="post">
             {% csrf_token %}
             <div class="mb-3">
@@ -55,6 +55,7 @@
         </form>
        {% endif %}
 </div>
+<br>
 
 {% if comments %}
 <div>
@@ -66,7 +67,7 @@
     </ul>
 </div>
 {% endif %}
- 
+ <br>
 <div>
     {% if not listing.is_closed %}
         {% if listing.user == request.user.username %}
@@ -79,8 +80,6 @@
         {% endif %}
     {% endif %}
 </div>
-
-    <br>
-    <br>
+<br>
 </button>
 {% endblock %}
