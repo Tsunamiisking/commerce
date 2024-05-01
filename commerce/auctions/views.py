@@ -61,16 +61,35 @@ def watchlist(request):
     if request.user.is_authenticated:
         watchlist_items = Watchlist.objects.filter(user=request.user)
         listings = []
+        bids = Bid.objects.filter(user=request.user)
         # Iterate over each watchlist item and get its associated listings
         for watchlist_item in watchlist_items:
             listings.extend(watchlist_item.listings.all())
+        
     else:
         # If the user is not logged in, handle it as per your requirements
         listings = []  # Or you can redirect to a login page, etc.
 
-    return render(request, "auctions/watchlist.html", {"listings": listings})
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings,
+        "Bids" : bids,
+        })
 
+def categoryDisp(request):
+    categories = Category.objects.all()
 
+    return render(request, "auctions/category.html", {
+        "categories" : categories,
+    })
+
+def category(request, category_id):
+    category_to_search = get_object_or_404(Category, pk=category_id)
+    listings = Listing.objects.filter(item_category=category_to_search)
+
+    return render(request, "auctions/categorygroup.html", {
+        "listings" : listings,
+        "category_to_search" : category_to_search
+    })
 
 def listingPage(request, listing_id):
     # Get the listing to display
@@ -82,10 +101,10 @@ def listingPage(request, listing_id):
 
     # Determine the button text based on whether the listing is in the watchlist
     button_text = "Add to watchlist" if not is_in_watchlist else "Remove from watchlist"
-    comments = Comment.objects.all()
+    comments = Comment.objects.filter(listing=listing_disp)
     # Retrieve success messages
     success_messages = messages.get_messages(request)
-    if get_highest_bidder(listing_id) == request.user.username:
+    if get_highest_bidder(listing_id) == request.user.username and listing_disp.is_closed:
         success_message  = "Congratulations!! Listing closed You Won the auction"
         messages.success(request, success_message) 
     # Render the template with the listing and success messages
@@ -147,7 +166,9 @@ def add_or_remove_watchlist(request, listing_id):
                 message = "Added to watchlist"
             messages.success(request, message)
             # Redirect to the listing page with the appropriate message
-            return HttpResponseRedirect(reverse("index"))
+            return redirect(reverse("listingPage", kwargs={'listing_id': listing_id}))
+
+
         else:
             messages.error(request, 'Please login')
             return HttpResponseRedirect(reverse('login'))

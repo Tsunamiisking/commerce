@@ -4,12 +4,12 @@
 
 
 {% if messages %}
-{% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-{% endfor %}
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
 {% endif %}
 
 <div class="container space">
@@ -20,14 +20,17 @@
     <p><strong>Category:</strong></p>
     <ul>
         {% for category in listing.item_category.all %}
-        <li>{{ category.category }}</li>
+            <li>{{ category.category }}</li>
         {% endfor %}
     </ul>
     <p>Posted by <strong>{{ listing.user  }}</strong></p>
     
        {% if user.is_authenticated %}
            <div class="centre">
-            <button id="add-to-watchlist-btn" class="btn btn-primary">{{button}}</button>
+            <form action="{% url 'add_or_remove_watchlist' listing.id %}" method="post">
+                {% csrf_token %}
+            <button class="btn btn-primary">{{button}}</button>
+            </form>
            </div>
             <br> <br>
            <form action="{% url 'bid_item' listing.id  %}" method="post">
@@ -42,73 +45,42 @@
 
                   <button class="btn btn-primary" type="submit">Place Bid</button>
            </form>
-       {% endif %}
-</div>
-<div>
-    <h4>Comments</h4>
-    <ul>
-        {%for comment in comments %}
-           <li><strong>{{ comment.user }} :</strong> {{ comment.text }}</li>
-        {%endfor%}
-    </ul>
-</div>
- 
-<div>
-    {% if request.user.username == listing.user %}
-    {% if not listing.is_closed %}
-        <form action="{% url 'close_listing' listing.id %}" method="post">
-            {% csrf_token %}
-            <input class="btn btn-primary" type="submit" value="Close Listing">
-        </form>
-    {% else %}
-        <p>This listing is already closed.</p>
-    {% endif %}
-</div>
 
-    <br>
-
-    {% if user.is_authenticated %}
-        <form action="{%url 'addcomment' listing.id %}" method="post">
+            <form action="{%url 'addcomment' listing.id %}" method="post">
             {% csrf_token %}
             <div class="mb-3">
                 <textarea name="comment-text" class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Drop Comment"></textarea>
               </div>
               <button class="btn btn-primary" type="submit">Comment</button>
         </form>
-    {%endif%}
-    <br>
+       {% endif %}
+</div>
+
+{% if comments %}
+<div>
+    <h4>Comments</h4>
+    <ul>
+        {%for comment in comments %}
+        <li><strong>{{ comment.user }} :</strong> {{ comment.text }}</li>
+        {%endfor%}
+    </ul>
+</div>
 {% endif %}
+ 
+<div>
+    {% if not listing.is_closed %}
+        {% if listing.user == request.user.username %}
+            <form action="{% url 'close_listing' listing.id %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-primary" type="submit" value="Close Listing">
+            </form>
+        {% else %}
+        <h3>This listing is already closed.</h3>
+        {% endif %}
+    {% endif %}
+</div>
 
+    <br>
+    <br>
 </button>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('add-to-watchlist-btn').addEventListener('click', function() {
-            var listingId = "{{ listing.id }}";  // Replace with actual listing title
-            var url = "{% url 'add_or_remove_watchlist' listing_id=listing.id %}";
-    
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 'listing_id': listingId })
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Handle successful response (e.g., display success message)
-                    console.log('Listing added to watchlist successfully');
-                } else {
-                    // Handle error response
-                    console.error('Error adding listing to watchlist');
-                }
-            })
-            .catch(error => {
-                // Handle network error
-                console.error('Network error:', error);
-            });
-        });
-    });
-    </script>
-
 {% endblock %}
